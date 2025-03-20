@@ -3,15 +3,8 @@ using log4net.Config;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 [assembly: XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
-
 
 namespace SauceDemo.Pages;
 
@@ -91,7 +84,7 @@ public class IndexPage
 
         if (errorMessages.Count() > 0)
         {
-            message = errorMessages.FirstOrDefault().Text;
+            message = errorMessages.First().Text;
         }
         else
         {

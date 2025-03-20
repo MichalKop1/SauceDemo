@@ -9,7 +9,6 @@ public class WebDriverBuilder
 {
     private bool headless;
     private bool incognito;
-    private readonly IWebDriver driver;
 
     public WebDriverBuilder Headless()
     {
@@ -38,14 +37,14 @@ public class WebDriverBuilder
             case Browsers.Firefox:
                 var firefoxOptions = new FirefoxOptions();
                 if (headless) firefoxOptions.AddArgument("--headless");
-                if (incognito) firefoxOptions.AddArgument("--incognito");
+                if (incognito) firefoxOptions.AddArgument("-private");
                 options = firefoxOptions;
                 break;
 
             case Browsers.Edge:
                 var edgeOptions = new EdgeOptions();
                 if (headless) edgeOptions.AddArgument("--headless");
-                if (incognito) edgeOptions.AddArgument("--incognito");
+                if (incognito) edgeOptions.AddArgument("--inPrivate");
                 options = edgeOptions;
                 break;
 

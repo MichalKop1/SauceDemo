@@ -5,12 +5,14 @@ namespace SauceDemo;
 
 public class ConfigHelper
 {
+	public string Url { get; set; }
 	public string Browser { get; private set; }
 	public string[] SupportedBrowsers { get; private set; }
 
 	[JsonConstructor]
-	private ConfigHelper(string browser, string[] supportedBrowsers)
+	private ConfigHelper(string url, string browser, string[] supportedBrowsers)
 	{
+		Url = url;
 		Browser = browser;
 		SupportedBrowsers = supportedBrowsers;
 		ValidateBrowser();
@@ -30,6 +32,8 @@ public class ConfigHelper
 
 	private void ValidateBrowser()
 	{
+		if (string.IsNullOrEmpty(Url)) throw new ArgumentException("Url cannot be null or empty");
+
 		if (string.IsNullOrEmpty(Browser))throw new ArgumentException("Browser name cannot be null or empty");
 
 		if (!SupportedBrowsers.Contains(Browser, StringComparer.OrdinalIgnoreCase))

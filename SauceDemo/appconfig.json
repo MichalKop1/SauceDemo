@@ -1,4 +1,5 @@
 {
+  "Url": "https://www.saucedemo.com/",
   "Browser": "chrome",
   "SupportedBrowsers": [ "Chrome", "Firefox", "Edge" ]
 }

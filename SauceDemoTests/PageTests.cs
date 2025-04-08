@@ -7,7 +7,7 @@ using SauceDemo;
 
 namespace SauceDemoTests;
 
-[Parallelizable(ParallelScope.Fixtures)]
+[Parallelizable(ParallelScope.All)]
 [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class PageTests
 {

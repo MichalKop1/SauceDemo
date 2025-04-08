@@ -1,4 +1,4 @@
-﻿namespace SeleniumWebDriverFirstScriptTests;
+﻿namespace SauceDemo;
 
 public enum Browsers
 {

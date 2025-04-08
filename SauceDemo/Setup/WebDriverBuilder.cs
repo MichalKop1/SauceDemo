@@ -3,7 +3,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Firefox;
 
-namespace SeleniumWebDriverFirstScriptTests;
+namespace SauceDemo;
 
 public class WebDriverBuilder
 {

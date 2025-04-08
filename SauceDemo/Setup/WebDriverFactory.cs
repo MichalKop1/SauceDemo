@@ -3,16 +3,16 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Edge;
 
-namespace SeleniumWebDriverFirstScriptTests;
+namespace SauceDemo;
 
 public static class WebDriverFactory
 {
-    private static IWebDriver? instance;
+    private static readonly ThreadLocal<IWebDriver> instance = new ThreadLocal<IWebDriver>();
     public static IWebDriver GetDriver(Browsers browser)
     {
-        if (instance is null)
-        {
-            return browser switch
+		if (!instance.IsValueCreated)
+		{
+            instance.Value = browser switch
             {
                 Browsers.Chrome => new ChromeDriver(),
                 Browsers.Firefox => new FirefoxDriver(),
@@ -21,16 +21,16 @@ public static class WebDriverFactory
             };
         }
 
-        return instance;
+        return instance.Value;
     }
 
     public static IWebDriver GetDriver(Browsers browser, DriverOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        if (instance is null)
-        {
-            return browser switch
+		if (!instance.IsValueCreated)
+		{
+            instance.Value = browser switch
             {
                 Browsers.Chrome => new ChromeDriver((ChromeOptions)options),
                 Browsers.Firefox => new FirefoxDriver((FirefoxOptions)options),
@@ -39,15 +39,15 @@ public static class WebDriverFactory
             };
         }
 
-        return instance;
+        return instance.Value;
     }
 
     public static void QuitDriver()
     {
-        if (instance is not null)
+        if (instance.IsValueCreated)
         {
-            instance.Quit();
-            instance = null;
+            instance.Value.Quit();
+            instance.Value = null;
         }
     }
 }

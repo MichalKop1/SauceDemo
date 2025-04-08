@@ -10,7 +10,6 @@ public class DashboardPage
 
     public DashboardPage(IWebDriver driver)
     {
-        log.Info("Setting up dashboard page");
         this.driver = driver ?? throw new ArgumentException(nameof(driver));
     }
 

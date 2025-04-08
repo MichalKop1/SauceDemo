@@ -3,7 +3,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using System.Collections.ObjectModel;
 
-namespace SeleniumWebDriverFirstScriptTests;
+namespace SeleniumWebDriverFirstScript;
 
 public class LoggingWebDriver : IWebDriver, IActionExecutor
 {

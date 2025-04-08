@@ -1,83 +1,59 @@
 using log4net;
 using log4net.Config;
-using OpenQA.Selenium;
 using SauceDemo.Pages;
-using SeleniumWebDriverFirstScriptTests;
+using SauceDemo;
 
 [assembly: XmlConfigurator(ConfigFile = "log4net.config", Watch = true)]
 
 namespace SauceDemoTests;
 
-[TestFixture(Browsers.Chrome)]
-[TestFixture(Browsers.Firefox)]
-[TestFixture(Browsers.Edge)]
+[Parallelizable(ParallelScope.Fixtures)]
+[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class PageTests
 {
-    private readonly Browsers browser;
-    private IWebDriver driver;
-    private IndexPage indexPage;
+    private IndexPage indexPage = new IndexPage();
 
     protected static readonly ILog log = LogManager.GetLogger(typeof(PageTests));
-
-    public PageTests(Browsers browser)
-    {
-        this.browser = browser;
-    }
 
     [SetUp]
     public void Setup()
     {
-        log.Info("Setting up the objects...");
-        var options = new WebDriverBuilder().Headless().Build(browser);
-        var baseDriver = WebDriverFactory.GetDriver(browser, options);
-
-        driver = new LoggingWebDriver(baseDriver);
-        
-        indexPage = new IndexPage(driver);
+        indexPage = new IndexPage();
     }
 
-    [Test]
-    public void LoginWithEmptyCredentials_PageShowsError()
+    [TestCase("ggg", "jjjjjj")]
+    public void LoginWithEmptyCredentials_PageShowsError(string name, string password)
     {
         // Arrange
-        string name = "ggg";
-        string password = "jjjjjj";
-        string actual;
 
         // Act
-        var page = indexPage.Open().FillInNameAndPassword(name,password).ClearNameAndPasswordFields().LogIn(out actual);
+        string actual = indexPage.Open().FillInNameAndPassword(name, password).ClearNameAndPasswordFields().GetLoginErrorMessage();
 
         // Assert
         string expectedError = "Epic sadface: Username is required";
         Assert.That(actual, Is.EqualTo(expectedError));
     }
 
-    [Test]
-    public void LoginOnlyWithUsername_PageShowsError()
+    [TestCase("gfrewgerg", "secret_sauce")]
+    public void LoginOnlyWithUsername_PageShowsError(string name, string password)
     {
         // Arrange
-        string name = "gfrewgerg";
-        string password = "secret_sauce";
-        string actual;
 
         // Act
-        var page = indexPage.Open().FillInNameAndPassword(name, password).ClearPasswordField().LogIn(out actual);
+        string actual = indexPage.Open().FillInNameAndPassword(name, password).ClearPasswordField().GetLoginErrorMessage();
 
         // Assert
         string expectedError = "Epic sadface: Password is required";
         Assert.That(actual, Is.EqualTo(expectedError));
     }
 
-    [Test]
-    public void LoginWithCorrectCredentials_LoginSucceeded()
+    [TestCase("standard_user", "secret_sauce")]
+    public void LoginWithCorrectCredentials_LoginSucceeded(string name, string password)
     {
         // Arrange
-        string name = "standard_user";
-        string password = "secret_sauce";
-        string message;
 
         //Act
-        DashboardPage dashboardPage = indexPage.Open().FillInNameAndPassword(name, password).LogIn(out message);
+        DashboardPage dashboardPage = indexPage.Open().FillInNameAndPassword(name, password).LogIn();
 
         // Assert
         string label = "Swag Labs";
@@ -89,6 +65,5 @@ public class PageTests
     public void TearDown()
     {
         WebDriverFactory.QuitDriver();
-        driver.Dispose();
     }
 }

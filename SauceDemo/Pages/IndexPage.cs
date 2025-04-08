@@ -14,10 +14,15 @@ public class IndexPage
     protected static readonly ILog log = LogManager.GetLogger(typeof(IndexPage));
     private readonly IWebDriver driver;
 
-    public IndexPage(IWebDriver driver)
+    public IndexPage()
     {
-        log.Info("Object set up");
-        this.driver = driver ?? throw new ArgumentException(nameof(driver));
+        string path = "appconfig.json";
+        ConfigHelper configHelper = ConfigHelper.Load("appconfig.json");
+
+		var browser = configHelper.GetBrowserType();
+		var options = new WebDriverBuilder().Headless().Build(browser);
+
+		this.driver = WebDriverFactory.GetDriver(browser, options) ?? throw new ArgumentException(nameof(driver));
     }
 
     public IndexPage Open()
@@ -68,28 +73,22 @@ public class IndexPage
         return this;
     }
 
-    public DashboardPage LogIn(out string message)
+    public string GetLoginErrorMessage()
     {
-        var wait5s = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+		var wait5s = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
 
+		var loginButton = driver.FindElement(By.Id("login-button"));
+		loginButton.Click();
+
+		var errorUserNamePasswordNotMatch = wait5s.Until(driver => driver.FindElements(By.ClassName("error-message-container")));
+
+        return errorUserNamePasswordNotMatch[0].Text;
+	}
+
+    public DashboardPage LogIn()
+    {
         var loginButton = driver.FindElement(By.Id("login-button"));
         loginButton.Click();
-       
-
-        var errorUserNamePasswordNotMatch = wait5s.Until(driver => driver.FindElements(By.ClassName("error-message-container")));
-        
-        var errorMessages = errorUserNamePasswordNotMatch;
-
-        string errorMessage = string.Empty;
-
-        if (errorMessages.Count() > 0)
-        {
-            message = errorMessages.First().Text;
-        }
-        else
-        {
-            message = string.Empty;
-        }
 
         return new DashboardPage(driver);
     }

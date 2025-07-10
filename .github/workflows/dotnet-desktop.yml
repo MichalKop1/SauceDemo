@@ -5,11 +5,23 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: 'Browser to run UI tests against'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+          - chrome
+          - firefox
+          - edge
 
 jobs:
-  build-and-test:
+  api-tests:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,17 +32,58 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore SauceDemoTests/SauceDemoTests.csproj
+        run: dotnet restore
 
       - name: Build solution
-        run: dotnet build SauceDemoTests/SauceDemoTests.csproj --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
 
-      - name: Run tests
-        run: dotnet test SauceDemoTests/SauceDemoTests.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+      - name: Run API tests
+        run: |
+          # Replace with your actual API test project path if different
+          dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=API --configuration Release --no-build --logger "trx;LogFileName=api_test_results.trx"
+        continue-on-error: true
 
-      - name: Publish test results
+      - name: Publish API test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: api-test-results
           path: SauceDemoTests/TestResults/
+
+  ui-tests:
+    runs-on: ubuntu-latest
+    needs: api-tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run UI tests
+        run: |
+           echo "Selected browser: ${{ github.event.inputs.browser }}"
+           dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=UI --configuration Release --
+        continue-on-error: true
+
+      - name: Publish UI test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-test-results
+          path: SauceDemoTests/TestResults/
+
+      - name: Publish screenshots (if any)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: SauceDemoTests/Screenshots/

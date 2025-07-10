@@ -1,89 +1,108 @@
+# Name of this GitHub Actions workflow as shown in the Actions tab
 name: .NET SauceDemo CI
 
+# Define triggers that will start the workflow
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master ]  # Trigger when code is pushed to 'main' or 'master'
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master ]  # Trigger on pull requests targeting 'main' or 'master'
   schedule:
-    - cron: '0 3 * * 1'
-  workflow_dispatch:
+    - cron: '0 3 * * 1'         # Run automatically every Monday at 3:00 AM UTC
+  workflow_dispatch:           # Allow manual triggering of the workflow via GitHub UI
     inputs:
-      browser:
-        description: 'Browser to run UI tests against'
-        required: true
-        default: 'chrome'
-        type: choice
+      browser:                 # Define an input called 'browser' for manual runs
+        description: 'Browser to run UI tests against'  # Displayed to user
+        required: true                                # User must choose a browser
+        default: 'chrome'                             # Default browser is Chrome
+        type: choice                                  # User selects from options
         options:
-          - chrome
-          - firefox
-          - edge
+          - chrome                                     # Chrome browser option
+          - firefox                                    # Firefox browser option
+          - edge                                       # Edge browser option
 
+# Define all jobs in this workflow
 jobs:
+
+  # First job: run the API tests
   api-tests:
-    runs-on: ubuntu-latest
-    steps:
+    runs-on: ubuntu-latest       # Use latest Ubuntu runner as the build agent
+
+    steps:                       # Define individual steps of the job
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Checkout the code from the repo into the runner
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4  # Install .NET SDK
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x'      # Use .NET SDK version 8.x
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore            # Restore NuGet packages
 
       - name: Build solution
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore  # Build solution in Release mode
 
       - name: Run API tests
         run: |
-          # Replace with your actual API test project path if different
-          dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=API --configuration Release --no-build --logger "trx;LogFileName=api_test_results.trx"
-        continue-on-error: true
+          # Run only tests tagged with [Category("API")], skip building again, and generate .trx report
+          dotnet test SauceDemoTests/SauceDemoTests.csproj \
+            --filter Category=API \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=api_test_results.trx"
+        continue-on-error: true        # If tests fail, continue to the next steps
 
       - name: Publish API test results
-        if: always()
+        if: always()                   # Always run this, even if previous step failed
         uses: actions/upload-artifact@v4
         with:
-          name: api-test-results
-          path: SauceDemoTests/TestResults/
+          name: api-test-results       # Artifact name in GitHub UI
+          path: SauceDemoTests/TestResults/  # Folder containing .trx test results
 
+  # Second job: run the UI tests (after API tests complete)
   ui-tests:
-    runs-on: ubuntu-latest
-    needs: api-tests
+    runs-on: ubuntu-latest             # Use Ubuntu as the build agent
+    needs: api-tests                   # Wait for api-tests to complete before starting
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4      # Get the latest code
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v4  # Install .NET SDK
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '8.0.x'      # Same SDK version as API job
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore            # Restore NuGet packages
 
       - name: Build solution
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore  # Build in Release mode
 
       - name: Run UI tests
+        env:                           # Set environment variable to pass browser to test code
+          TEST_BROWSER: ${{ github.event.inputs.browser }}  # Assign input to env var
         run: |
-           echo "Selected browser: ${{ github.event.inputs.browser }}"
-           dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=UI --configuration Release --
-        continue-on-error: true
+          echo "Selected browser: $TEST_BROWSER"   # Optional: log selected browser
+          # Run only UI tests, pass browser via environment variable
+          dotnet test SauceDemoTests/SauceDemoTests.csproj \
+            --filter Category=UI \
+            --configuration Release \
+            --no-build \
+            --logger "trx;LogFileName=ui_test_results.trx"
+        continue-on-error: true        # Continue workflow even if tests fail
 
       - name: Publish UI test results
-        if: always()
+        if: always()                   # Always publish test results
         uses: actions/upload-artifact@v4
         with:
-          name: ui-test-results
-          path: SauceDemoTests/TestResults/
+          name: ui-test-results        # Artifact name for UI test results
+          path: SauceDemoTests/TestResults/  # Same test output directory
 
       - name: Publish screenshots (if any)
-        if: always()
+        if: always()                   # Always try to upload screenshots
         uses: actions/upload-artifact@v4
         with:
-          name: screenshots
-          path: SauceDemoTests/Screenshots/
+          name: screenshots            # Name for screenshot artifacts
+          path: SauceDemoTests/Screenshots/  # Folder where screenshots are saved (if any)

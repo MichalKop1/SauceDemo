@@ -1,31 +1,36 @@
-name: .NET ATM CI pipeline
+name: .NET SauceDemo CI
 
-on:  
-  push:  
-    branches:  
-      - DEV 
-  pull_request: 
-    branches:  
-      - DEV 
-  workflow_dispatch:
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
-jobs:  
-  build:  
-    name: Build and tests 
-    runs-on: windows-latest
-    steps: 
-    - name: Checkout code 
-      uses: actions/checkout@v2 
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
 
-    - name: Setup .NET 
-      uses: actions/setup-dotnet@v1 
-      with:  
-        dotnet-version: '8.0.x' 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Build 
-      run: dotnet build
-      working-directory: .
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Run tests 
-      run: dotnet test --no-build --configuration Release --verbosity normal
-      working-directory: .
+      - name: Restore dependencies
+        run: dotnet restore SauceDemoTests/SauceDemoTests.csproj
+
+      - name: Build solution
+        run: dotnet build SauceDemoTests/SauceDemoTests.csproj --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test SauceDemoTests/SauceDemoTests.csproj --configuration Release --no-build --logger "trx;LogFileName=test_results.trx"
+
+      - name: Publish test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: SauceDemoTests/TestResults/

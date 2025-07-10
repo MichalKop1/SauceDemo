@@ -22,11 +22,6 @@ jobs:
       with:  
         dotnet-version: '7.0.x' 
 
-    - name: Print Chrome version (pre-installed on Windows runners)
-      run: |
-        where chrome
-        chrome --version
-
     - name: Restore dependencies 
       run: dotnet restore 
       working-directory: .

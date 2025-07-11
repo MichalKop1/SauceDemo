@@ -55,7 +55,7 @@ jobs:
 
       - name: Run API tests
         run: |
-          dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=API --configuration Release --no-build --logger "trx;LogFileName=api_test_results.trx"
+          dotnet test SauceDemoTests/SauceDemoTests.csproj --filter Category=API --configuration Debug --no-build --logger "trx;LogFileName=api_test_results.trx"
         continue-on-error: true
 
       - name: Publish API test results

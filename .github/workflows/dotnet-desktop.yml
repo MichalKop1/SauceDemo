@@ -32,8 +32,8 @@ jobs:
 
     - name: update config filter
       run: |
-        jq ".Browser = ""$env:BROWSER""" SauceDemo/SauceDemo/Setup/appconfig.json > temp.json
-        Move-Item -Force temp.json config.json
+        jq ".Browser = ""$env:BROWSER""" SauceDemo/appconfig.json > temp.json
+        Move-Item -Force temp.json SauceDemo/appconfig.json
 
   api-tests:
     runs-on: windows-latest       

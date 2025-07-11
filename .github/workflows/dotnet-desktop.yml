@@ -35,6 +35,10 @@ jobs:
         jq ".Browser = ""$env:BROWSER""" SauceDemo/appconfig.json > temp.json
         Move-Item -Force temp.json SauceDemo/appconfig.json
 
+    - name: Log config
+      run: Get-Content SauceDemo/appconfig.json
+      shell: powershell
+
   api-tests:
     runs-on: windows-latest       
 

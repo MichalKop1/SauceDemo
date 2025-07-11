@@ -24,7 +24,7 @@ jobs:
       Browser: ${{ github.event.inputs.browser }}
     steps:
     - name: checkout code
-      uses: actions/checkoutv@4
+      uses: actions/checkout@v4
 
     - name: install jq
       run: choco install jq -y

@@ -1,4 +1,4 @@
-name: Web Locators
+name: SauceDemo
 
 on:
   pull_request:
@@ -30,10 +30,10 @@ jobs:
       run: choco install jq -y
       shell: powershell
 
-    -name: update config filter
-    run: |
-      jq ".Browser = ""$env:BROWSER""" SauceDemo/Setup/config.json > temp.json
-          Move-Item -Force temp.json config.json
+    - name: update config filter
+      run: |
+        jq ".Browser = ""$env:BROWSER""" SauceDemo/Setup/config.json > temp.json
+        Move-Item -Force temp.json config.json
 
   api-tests:
     runs-on: windows-latest       

@@ -1,0 +1,46 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '9.0.x'
+
+- script: dotnet restore
+  displayName: 'Restore dependencies'
+
+- script: dotnet build --configuration Release
+  displayName: 'Build API test project'
+
+- script: dotnet test MyProject.ApiTests/MyProject.ApiTests.csproj --logger trx
+  displayName: 'Run API Tests'
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFiles: '**/*.trx'
+    testRunTitle: 'API Tests'
+
+
+#trigger:
+#- main
+
+#pool:
+ # vmImage: ubuntu-latest
+
+#steps:
+#- script: echo Hello, world!
+  #displayName: 'Run a one-line script'
+
+#- script: |
+  #  echo Add other tasks to build, test, and deploy your project.
+ #   echo See https://aka.ms/yaml
+  #displayName: 'Run a multi-line script'

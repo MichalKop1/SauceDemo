@@ -7,8 +7,9 @@ using SauceDemo;
 
 namespace SauceDemoTests;
 
-[Parallelizable(ParallelScope.All)]
-[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+//[Parallelizable(ParallelScope.All)]
+//[FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
+[TestFixture]
 public class PageTests
 {
     private IndexPage indexPage = new IndexPage();
@@ -21,9 +22,11 @@ public class PageTests
         indexPage = new IndexPage();
     }
 
+    [Log]
     [TestCase("ggg", "jjjjjj")]
     public void LoginWithEmptyCredentials_PageShowsError(string name, string password)
     {
+		
         // Arrange
 
         // Act
@@ -37,10 +40,14 @@ public class PageTests
     [TestCase("gfrewgerg", "secret_sauce")]
     public void LoginOnlyWithUsername_PageShowsError(string name, string password)
     {
-        // Arrange
+		int[] example = [0, 1, 2, 2, 3, 0, 4, 2];
+		int val = 2;
 
-        // Act
-        string actual = indexPage.Open().FillInNameAndPassword(name, password).ClearPasswordField().GetLoginErrorMessage();
+		Doooo(example, val);
+		// Arrange
+
+		// Act
+		string actual = indexPage.Open().FillInNameAndPassword(name, password).ClearPasswordField().GetLoginErrorMessage();
 
         // Assert
         string expectedError = "Epic sadface: Password is required";
@@ -60,6 +67,28 @@ public class PageTests
         string actual = dashboardPage.GetLabelText();
         Assert.That(actual, Is.EqualTo(label));
     }
+
+    private void Doooo(int[] nums, int val)
+    {
+		int count = 0;
+		for (int i = 0; i < nums.Length; i++)
+		{
+			for (int j = i + 1; j < nums.Length; j++)
+			{
+				if (nums[i] == val && nums[j] != val)
+				{
+					nums[i] = nums[j];
+					nums[j] = val;
+					count++;
+				}
+				else if (nums[i] != val)
+				{
+					count++;
+					break;
+				}
+			}
+		}
+	}
 
     [TearDown]
     public void TearDown()

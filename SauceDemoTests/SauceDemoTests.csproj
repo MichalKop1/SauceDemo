@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Gherkin" Version="33.1.0" />
     <PackageReference Include="log4net" Version="3.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="NUnit" Version="3.14.0" />
@@ -32,6 +33,8 @@
     <PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="134.0.6998.9000" />
     <PackageReference Include="Selenium.WebDriver.GeckoDriver" Version="0.36.0" />
     <PackageReference Include="Selenium.WebDriver.IEDriver" Version="4.14.0" />
+    <PackageReference Include="SpecFlow" Version="3.9.74" />
+    <PackageReference Include="SpecFlow.NUnit" Version="3.9.74" />
   </ItemGroup>
 
   <ItemGroup>
